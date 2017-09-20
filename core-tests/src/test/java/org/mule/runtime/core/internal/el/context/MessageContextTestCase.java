@@ -126,7 +126,7 @@ public class MessageContextTestCase extends AbstractELTestCase {
     DefaultTransformationService transformationService = mock(DefaultTransformationService.class);
     when(transformedMessage.getPayload()).thenReturn(new TypedValue<Object>(TEST_PAYLOAD, STRING));
     muleContext.setTransformationService(transformationService);
-    when(transformationService.internalTransform(event.getMessage(), DataType.STRING)).thenReturn(transformedMessage);
+    when(transformationService.transform(event.getMessage(), DataType.STRING)).thenReturn(transformedMessage);
     Object result = evaluate("message.payloadAs(" + DataType.class.getName() + ".STRING)", event);
     assertSame(TEST_PAYLOAD, result);
   }

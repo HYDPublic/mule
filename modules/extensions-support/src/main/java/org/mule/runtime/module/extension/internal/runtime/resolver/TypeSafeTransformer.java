@@ -39,7 +39,7 @@ public class TypeSafeTransformer {
       throws MessageTransformerException, TransformerException {
 
     // TODO review that event is not need but there was logic to use MessageTransform
-    return (T) transformationService.internalTransform(value, valueDataType, expectedDataType);
+    return (T) transformationService.transform(value, valueDataType, expectedDataType);
   }
 }
 

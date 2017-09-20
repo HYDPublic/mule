@@ -343,7 +343,7 @@ public class MessagingExceptionTestCase extends AbstractMuleContextTestCase {
     when(payload.toString()).then(new FailAnswer("toString() expected not to be called."));
     Message muleMessage = of(payload);
 
-    when(transformationService.internalTransform(muleMessage, DataType.STRING)).thenReturn(of(value));
+    when(transformationService.transform(muleMessage, DataType.STRING)).thenReturn(of(value));
     when(testEvent.getMessage()).thenReturn(muleMessage);
     MessagingException e = new MessagingException(createStaticMessage(message), testEvent);
 
@@ -363,7 +363,7 @@ public class MessagingExceptionTestCase extends AbstractMuleContextTestCase {
 
     assertThat((String) e.getInfo().get(PAYLOAD_INFO_KEY), containsString(ByteArrayInputStream.class.getName() + "@"));
 
-    verify(transformationService, never()).internalTransform(muleMessage, DataType.STRING);
+    verify(transformationService, never()).transform(muleMessage, DataType.STRING);
   }
 
   @Test
@@ -377,7 +377,7 @@ public class MessagingExceptionTestCase extends AbstractMuleContextTestCase {
     when(payload.toString()).then(new FailAnswer("toString() expected not to be called."));
     Message muleMessage = of(payload);
 
-    when(transformationService.internalTransform(muleMessage, DataType.STRING))
+    when(transformationService.transform(muleMessage, DataType.STRING))
         .thenThrow(new TransformerException(createStaticMessage("exception thrown")));
     when(testEvent.getMessage()).thenReturn(muleMessage);
     MessagingException e = new MessagingException(createStaticMessage(message), testEvent);
@@ -399,7 +399,7 @@ public class MessagingExceptionTestCase extends AbstractMuleContextTestCase {
     assertThat(e.getInfo().get(PAYLOAD_INFO_KEY), nullValue());
 
     verify(muleMessage, never()).getPayload();
-    verify(transformationService, never()).internalTransform(muleMessage, DataType.STRING);
+    verify(transformationService, never()).transform(muleMessage, DataType.STRING);
   }
 
   private static final class FailAnswer implements Answer<String> {

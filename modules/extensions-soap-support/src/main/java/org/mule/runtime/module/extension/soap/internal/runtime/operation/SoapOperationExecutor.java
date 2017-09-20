@@ -157,6 +157,6 @@ public final class SoapOperationExecutor implements ComponentExecutor<OperationM
     if (value instanceof InputStream) {
       return (InputStream) value;
     }
-    return (InputStream) transformationService.internalTransform(value, DataType.fromObject(value), INPUT_STREAM);
+    return (InputStream) transformationService.transform(value, DataType.fromObject(value), INPUT_STREAM);
   }
 }

@@ -555,7 +555,7 @@ public class DefaultMessageBuilder
         out.writeBoolean(false);
         // TODO MULE-10013 remove this logic from here
         byte[] valueAsByteArray = (byte[]) ((InternalEvent) getCurrentEvent()).getMuleContext().getTransformationService()
-            .internalTransform(this, DataType.BYTE_ARRAY).getPayload().getValue();
+            .transform(this, DataType.BYTE_ARRAY).getPayload().getValue();
         out.writeInt(valueAsByteArray.length);
         new DataOutputStream(out).write(valueAsByteArray);
         out.writeObject(DataType.BYTE_ARRAY);

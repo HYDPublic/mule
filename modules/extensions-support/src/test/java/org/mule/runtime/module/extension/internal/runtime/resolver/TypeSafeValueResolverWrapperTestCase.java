@@ -54,7 +54,7 @@ public class TypeSafeValueResolverWrapperTestCase extends AbstractMuleContextTes
     staticResolver.setTransformationService(transformationService);
     staticResolver.initialise();
 
-    when(transformationService.internalTransform(eq("123"), any(DataType.class), any(DataType.class))).thenReturn(123);
+    when(transformationService.transform(eq("123"), any(DataType.class), any(DataType.class))).thenReturn(123);
   }
 
   @Test

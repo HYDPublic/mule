@@ -479,7 +479,7 @@ public abstract class AbstractMuleContextTestCase extends AbstractMuleTestCase {
    * @throws Exception if there is an unexpected error obtaining the payload representation
    */
   protected Object getPayload(Message message, DataType dataType) throws Exception {
-    return muleContext.getTransformationService().internalTransform(message, dataType).getPayload().getValue();
+    return muleContext.getTransformationService().transform(message, dataType).getPayload().getValue();
   }
 
   /**
