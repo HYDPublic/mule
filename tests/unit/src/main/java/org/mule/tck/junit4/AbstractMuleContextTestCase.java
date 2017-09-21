@@ -37,7 +37,6 @@ import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.runtime.api.scheduler.SchedulerView;
 import org.mule.runtime.api.serialization.ObjectSerializer;
 import org.mule.runtime.api.util.concurrent.Latch;
-import org.mule.runtime.core.api.DefaultTransformationService;
 import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.core.api.config.ConfigurationBuilder;
 import org.mule.runtime.core.api.config.DefaultMuleConfiguration;
@@ -449,7 +448,7 @@ public abstract class AbstractMuleContextTestCase extends AbstractMuleTestCase {
   }
 
   /**
-   * Uses {@link DefaultTransformationService} to get a {@link String} representation of a message.
+   * Uses {@link org.mule.runtime.api.transformation.TransformationService} to get a {@link String} representation of a message.
    *
    * @param message message to get payload from
    * @return String representation of the message payload
@@ -460,7 +459,7 @@ public abstract class AbstractMuleContextTestCase extends AbstractMuleTestCase {
   }
 
   /**
-   * Uses {@link DefaultTransformationService} to get byte[] representation of a message.
+   * Uses {@link org.mule.runtime.api.transformation.TransformationService} to get byte[] representation of a message.
    *
    * @param message message to get payload from
    * @return byte[] representation of the message payload
@@ -471,7 +470,7 @@ public abstract class AbstractMuleContextTestCase extends AbstractMuleTestCase {
   }
 
   /**
-   * Uses {@link DefaultTransformationService} to get representation of a message for a given {@link DataType}
+   * Uses {@link org.mule.runtime.api.transformation.TransformationService} to get representation of a message for a given {@link DataType}
    *
    * @param message message to get payload from
    * @param dataType dataType to be transformed to
@@ -483,7 +482,7 @@ public abstract class AbstractMuleContextTestCase extends AbstractMuleTestCase {
   }
 
   /**
-   * Uses {@link DefaultTransformationService} to get representation of a message for a given {@link Class}
+   * Uses {@link org.mule.runtime.api.transformation.TransformationService} to get representation of a message for a given {@link Class}
    *
    * @param message message to get payload from
    * @param clazz type of the payload to be transformed to

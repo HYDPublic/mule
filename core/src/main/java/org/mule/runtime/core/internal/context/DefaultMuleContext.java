@@ -71,7 +71,6 @@ import org.mule.runtime.api.store.ObjectStore;
 import org.mule.runtime.api.store.ObjectStoreManager;
 import org.mule.runtime.api.transformation.TransformationService;
 import org.mule.runtime.api.util.concurrent.Latch;
-import org.mule.runtime.core.api.DefaultTransformationService;
 import org.mule.runtime.core.api.Injector;
 import org.mule.runtime.core.api.SingleResourceTransactionFactoryManager;
 import org.mule.runtime.core.api.client.MuleClient;
@@ -121,6 +120,7 @@ import org.mule.runtime.core.internal.util.splash.ApplicationStartupSplashScreen
 import org.mule.runtime.core.internal.util.splash.ServerShutdownSplashScreen;
 import org.mule.runtime.core.internal.util.splash.ServerStartupSplashScreen;
 import org.mule.runtime.core.internal.util.splash.SplashScreen;
+import org.mule.runtime.core.privileged.ExtendedTransformationService;
 import org.mule.runtime.core.privileged.registry.RegistrationException;
 
 import org.slf4j.Logger;
@@ -268,7 +268,7 @@ public class DefaultMuleContext implements MuleContextWithRegistries {
   }
 
   public DefaultMuleContext() {
-    transformationService = new DefaultTransformationService(this);
+    transformationService = new ExtendedTransformationService(this);
   }
 
   @Override

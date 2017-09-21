@@ -89,15 +89,15 @@ public class DefaultTransformationService implements TransformationService {
    */
   @Deprecated
   private Object internalTransform(Object value, DataType valueDataType, DataType expectedDataType)
-          throws MessageTransformerException, TransformerException {
+      throws MessageTransformerException, TransformerException {
     Transformer transformer;
     if (value != null) {
       try {
         transformer = ((MuleContextWithRegistries) muleContext).getRegistry().lookupTransformer(valueDataType, expectedDataType);
       } catch (TransformerException e) {
         throw new TransformerException(createStaticMessage(String
-                                                                   .format("The value '%s' of type %s could not be transformed to the desired type %s",
-                                                                           value.toString(), value.getClass().getName(), expectedDataType.getType().getName()), e));
+            .format("The value '%s' of type %s could not be transformed to the desired type %s",
+                    value.toString(), value.getClass().getName(), expectedDataType.getType().getName()), e));
       }
 
       return transformer.transform(value);

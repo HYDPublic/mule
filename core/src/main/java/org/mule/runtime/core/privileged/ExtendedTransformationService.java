@@ -53,7 +53,7 @@ public class ExtendedTransformationService extends DefaultTransformationService 
    */
   public Message applyTransformers(final Message message, final BaseEvent event,
                                    final List<? extends Transformer> transformers)
-          throws MuleException {
+      throws MuleException {
     return applyAllTransformers(message, event, transformers);
   }
 
@@ -71,7 +71,7 @@ public class ExtendedTransformationService extends DefaultTransformationService 
    *         with the message payload
    */
   public Message applyTransformers(final Message message, final BaseEvent event, final Transformer... transformers)
-          throws MuleException {
+      throws MuleException {
     return applyAllTransformers(message, event, asList(transformers));
   }
 
@@ -113,7 +113,7 @@ public class ExtendedTransformationService extends DefaultTransformationService 
 
   private Message applyAllTransformers(final Message message, final BaseEvent event,
                                        final List<? extends Transformer> transformers)
-          throws MuleException {
+      throws MuleException {
     Message result = message;
     if (!transformers.isEmpty()) {
       for (int index = 0; index < transformers.size(); index++) {
@@ -138,7 +138,7 @@ public class ExtendedTransformationService extends DefaultTransformationService 
 
           // Resolves implicit conversion if possible
           Transformer implicitTransformer =
-                  muleContext.getDataTypeConverterResolver().resolve(originalSourceType, transformer.getSourceDataTypes());
+              muleContext.getDataTypeConverterResolver().resolve(originalSourceType, transformer.getSourceDataTypes());
 
           if (implicitTransformer != null) {
             if (logger.isDebugEnabled()) {
@@ -185,7 +185,7 @@ public class ExtendedTransformationService extends DefaultTransformationService 
   }
 
   private Message transformMessage(final Message message, final BaseEvent event, final Transformer transformer)
-          throws MessageTransformerException, TransformerException {
+      throws MessageTransformerException, TransformerException {
     Object result;
 
     if (transformer instanceof MessageTransformer) {
@@ -202,7 +202,7 @@ public class ExtendedTransformationService extends DefaultTransformationService 
       // message. See MULE-9342
       Message messagePostTransform = (event != null && event.getMessage() != null) ? event.getMessage() : message;
       return Message.builder(messagePostTransform).value(result)
-              .mediaType(mergeMediaType(messagePostTransform, transformer.getReturnDataType())).build();
+          .mediaType(mergeMediaType(messagePostTransform, transformer.getReturnDataType())).build();
     }
   }
 
@@ -210,7 +210,7 @@ public class ExtendedTransformationService extends DefaultTransformationService 
     DataType original = message.getPayload().getDataType();
     MediaType mimeType = ANY.matches(transformed.getMediaType()) ? original.getMediaType() : transformed.getMediaType();
     Charset encoding = transformed.getMediaType().getCharset()
-            .orElse(message.getPayload().getDataType().getMediaType().getCharset().orElse(getDefaultEncoding(muleContext)));
+        .orElse(message.getPayload().getDataType().getMediaType().getCharset().orElse(getDefaultEncoding(muleContext)));
 
     return DataType.builder().mediaType(mimeType).charset(encoding).build().getMediaType();
   }

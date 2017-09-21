@@ -250,7 +250,8 @@ public class InvokerMessageProcessor extends AbstractComponent implements Proces
       final TransformerTemplate template = new TransformerTemplate(new TransformerTemplate.OverwitePayloadCallback(result));
       template.setReturnDataType(DataType.builder(DataType.OBJECT).charset(getDefaultEncoding(muleContext)).build());
       eventBuilder
-          .message(((ExtendedTransformationService)muleContext.getTransformationService()).applyTransformers(event.getMessage(), event, singletonList(template)));
+          .message(((ExtendedTransformationService) muleContext.getTransformationService())
+              .applyTransformers(event.getMessage(), event, singletonList(template)));
     } else {
       eventBuilder.message(of(null));
     }

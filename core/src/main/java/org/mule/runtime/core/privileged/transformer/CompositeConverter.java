@@ -134,7 +134,9 @@ public class CompositeConverter extends AbstractComponent implements Converter, 
     if (event != null && event.getMessage() != null) {
       try {
         event = CoreEvent.builder(event)
-            .message(((ExtendedTransformationService)muleContext.getTransformationService()).applyTransformers(event.getMessage(), event, this)).build();
+            .message(((ExtendedTransformationService) muleContext.getTransformationService())
+                .applyTransformers(event.getMessage(), event, this))
+            .build();
       } catch (MessageTransformerException e) {
         throw e;
       } catch (Exception e) {

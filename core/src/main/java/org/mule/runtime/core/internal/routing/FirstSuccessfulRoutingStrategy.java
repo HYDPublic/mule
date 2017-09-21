@@ -141,7 +141,8 @@ public class FirstSuccessfulRoutingStrategy implements RoutingStrategy {
         if (resultMessage != null) {
           try {
             logger.trace("Response payload: \n"
-                + truncate(((ExtendedTransformationService)transformationService).getPayloadForLogging(resultMessage), 100, false));
+                + truncate(((ExtendedTransformationService) transformationService).getPayloadForLogging(resultMessage), 100,
+                           false));
           } catch (Exception e) {
             logger.trace("Response payload: \n(unable to retrieve payload: " + e.getMessage());
           }

@@ -46,6 +46,9 @@ import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.exception.ErrorTypeLocator;
 import org.mule.runtime.core.api.exception.MessagingException;
 import org.mule.runtime.core.api.management.stats.AllStatistics;
+import org.mule.runtime.core.privileged.ExtendedTransformationService;
+import org.mule.runtime.core.privileged.processor.InternalProcessor;
+import org.mule.runtime.core.privileged.processor.chain.MessageProcessorChainBuilder;
 import org.mule.runtime.core.api.processor.Processor;
 import org.mule.runtime.core.api.source.MessageSource;
 import org.mule.runtime.core.internal.construct.DefaultFlowBuilder.DefaultFlow;
@@ -101,7 +104,7 @@ public class PipelineMessageNotificationTestCase extends AbstractReactiveProcess
         .thenReturn(notificationFirer);
     mockErrorTypeLocator();
     when(muleContext.getErrorTypeRepository().getErrorType(UNKNOWN)).thenReturn(Optional.of(mock(ErrorType.class)));
-    when(muleContext.getTransformationService()).thenReturn(new DefaultTransformationService(muleContext));
+    when(muleContext.getTransformationService()).thenReturn(new ExtendedTransformationService(muleContext));
   }
 
   private void mockErrorTypeLocator() {

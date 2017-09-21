@@ -33,6 +33,7 @@ import org.mule.runtime.api.exception.DefaultMuleException;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.DataType;
+import org.mule.runtime.api.transformation.TransformationService;
 import org.mule.runtime.core.api.config.DefaultMuleConfiguration;
 import org.mule.runtime.core.api.construct.FlowConstruct;
 import org.mule.runtime.core.api.event.CoreEvent;
@@ -83,7 +84,7 @@ public class MessagingExceptionTestCase extends AbstractMuleContextTestCase {
   private FlowConstruct flowConstruct;
 
   @Mock
-  private DefaultTransformationService transformationService;
+  private TransformationService transformationService;
 
   @Mock
   private ComponentLocation mockComponentLocation;
