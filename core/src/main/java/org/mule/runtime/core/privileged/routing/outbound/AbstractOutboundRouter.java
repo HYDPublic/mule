@@ -20,6 +20,7 @@ import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.lifecycle.Startable;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.core.api.MuleContext;
+import org.mule.runtime.core.privileged.ExtendedTransformationService;
 import org.mule.runtime.core.privileged.connector.DispatchException;
 import org.mule.runtime.core.api.context.MuleContextAware;
 import org.mule.runtime.core.api.event.CoreEvent;
@@ -117,7 +118,7 @@ public abstract class AbstractOutboundRouter extends AbstractMessageProcessorOwn
         if (resultMessage != null) {
           try {
             logger.trace("Response payload: \n"
-                + truncate(muleContext.getTransformationService().getPayloadForLogging(resultMessage), 100, false));
+                + truncate(((ExtendedTransformationService)muleContext.getTransformationService()).getPayloadForLogging(resultMessage), 100, false));
           } catch (Exception e) {
             logger.trace("Response payload: \n(unable to retrieve payload: " + e.getMessage());
           }

@@ -69,6 +69,7 @@ import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.runtime.api.serialization.ObjectSerializer;
 import org.mule.runtime.api.store.ObjectStore;
 import org.mule.runtime.api.store.ObjectStoreManager;
+import org.mule.runtime.api.transformation.TransformationService;
 import org.mule.runtime.api.util.concurrent.Latch;
 import org.mule.runtime.core.api.DefaultTransformationService;
 import org.mule.runtime.core.api.Injector;
@@ -229,7 +230,7 @@ public class DefaultMuleContext implements MuleContextWithRegistries {
   private volatile Collection<ExceptionContextProvider> exceptionContextProviders;
   private Object exceptionContextProvidersLock = new Object();
 
-  private DefaultTransformationService transformationService;
+  private TransformationService transformationService;
 
   private BootstrapServiceDiscoverer bootstrapServiceDiscoverer;
 
@@ -1009,7 +1010,7 @@ public class DefaultMuleContext implements MuleContextWithRegistries {
   }
 
   @Override
-  public DefaultTransformationService getTransformationService() {
+  public TransformationService getTransformationService() {
     if (transformationService == null) {
       transformationService = getRegistry().get(OBJECT_TRANSFORMATION_SERVICE);
     }
@@ -1017,7 +1018,7 @@ public class DefaultMuleContext implements MuleContextWithRegistries {
   }
 
   @Override
-  public void setTransformationService(DefaultTransformationService transformationService) {
+  public void setTransformationService(TransformationService transformationService) {
     this.transformationService = transformationService;
   }
 

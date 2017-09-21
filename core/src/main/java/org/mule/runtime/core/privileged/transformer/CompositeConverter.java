@@ -10,13 +10,14 @@ import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.component.AbstractComponent;
 import org.mule.runtime.api.metadata.DataType;
-import org.mule.runtime.core.api.DefaultTransformationService;
+import org.mule.runtime.api.transformation.TransformationService;
 import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.core.api.context.MuleContextAware;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.transformer.Converter;
 import org.mule.runtime.core.api.transformer.MessageTransformerException;
 import org.mule.runtime.core.api.transformer.TransformerException;
+import org.mule.runtime.core.privileged.ExtendedTransformationService;
 
 import java.nio.charset.Charset;
 import java.util.LinkedList;
@@ -33,7 +34,7 @@ public class CompositeConverter extends AbstractComponent implements Converter, 
   private String name;
 
   private LinkedList<Converter> chain;
-  private DefaultTransformationService transformationService;
+  private TransformationService transformationService;
 
   private MuleContext muleContext;
 
@@ -133,7 +134,7 @@ public class CompositeConverter extends AbstractComponent implements Converter, 
     if (event != null && event.getMessage() != null) {
       try {
         event = CoreEvent.builder(event)
-            .message(muleContext.getTransformationService().applyTransformers(event.getMessage(), event, this)).build();
+            .message(((ExtendedTransformationService)muleContext.getTransformationService()).applyTransformers(event.getMessage(), event, this)).build();
       } catch (MessageTransformerException e) {
         throw e;
       } catch (Exception e) {
