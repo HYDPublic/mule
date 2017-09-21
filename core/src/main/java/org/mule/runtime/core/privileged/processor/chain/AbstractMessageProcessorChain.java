@@ -27,11 +27,11 @@ import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.lifecycle.Startable;
-import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.api.notification.MessageProcessorNotification;
+import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.core.api.context.notification.ServerNotificationManager;
-import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.event.BaseEventContext;
+import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.exception.MessagingException;
 import org.mule.runtime.core.api.processor.Processor;
 import org.mule.runtime.core.api.processor.ReactiveProcessor;
@@ -42,6 +42,10 @@ import org.mule.runtime.core.api.util.MessagingExceptionResolver;
 import org.mule.runtime.core.internal.processor.interceptor.ReactiveInterceptorAdapter;
 import org.mule.runtime.core.privileged.component.AbstractExecutableComponent;
 import org.mule.runtime.core.privileged.event.PrivilegedEvent;
+import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -52,11 +56,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-import org.reactivestreams.Publisher;
-import org.slf4j.Logger;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 /**
  * Builder needs to return a composite rather than the first MessageProcessor in the chain. This is so that if this chain is
@@ -191,7 +190,7 @@ abstract class AbstractMessageProcessorChain extends AbstractExecutableComponent
     return exceptionResolver.resolve(new MessagingException(event, throwable, processor), muleContext);
   }
 
-  protected Function<MessagingException, MessagingException> resolveMessagingException(Processor processor) {
+  private Function<MessagingException, MessagingException> resolveMessagingException(Processor processor) {
     if (processor instanceof Component) {
       MessagingExceptionResolver exceptionResolver = new MessagingExceptionResolver((Component) processor);
       return exception -> exceptionResolver.resolve(exception, muleContext);
