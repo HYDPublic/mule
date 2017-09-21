@@ -78,7 +78,8 @@ public abstract class AbstractTransformer extends AbstractComponent implements T
   public CoreEvent process(CoreEvent event) throws MuleException {
     if (event != null && event.getMessage() != null) {
       try {
-        return CoreEvent.builder(event).message(Message.builder(event.getMessage()).payload(TypedValue.of(transform(event.getMessage().getPayload()))).build()).build();
+        return CoreEvent.builder(event).message(Message.builder(event.getMessage())
+            .payload(TypedValue.of(transform(event.getMessage().getPayload()))).build()).build();
       } catch (Exception e) {
         throw new MessageTransformerException(this, e, event.getMessage());
       }
