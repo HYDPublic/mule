@@ -26,6 +26,8 @@ import org.mule.runtime.core.privileged.transformer.TransformerUtils;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,8 @@ public class ExtendedTransformationService extends DefaultTransformationService 
 
   private static final Logger logger = LoggerFactory.getLogger(ExtendedTransformationService.class);
 
+
+  @Inject
   public ExtendedTransformationService(MuleContext muleContext) {
     super(muleContext);
   }
