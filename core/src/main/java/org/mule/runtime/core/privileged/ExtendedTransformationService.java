@@ -15,7 +15,7 @@ import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.DefaultTransformationService;
 import org.mule.runtime.core.api.MuleContext;
-import org.mule.runtime.core.api.event.BaseEvent;
+import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.transformer.Converter;
 import org.mule.runtime.core.api.transformer.MessageTransformer;
 import org.mule.runtime.core.api.transformer.MessageTransformerException;
@@ -55,7 +55,7 @@ public class ExtendedTransformationService extends DefaultTransformationService 
    * @throws TransformerException if a transformation error occurs or one or more of the transformers passed in a are incompatible
    *         with the message payload
    */
-  public Message applyTransformers(final Message message, final BaseEvent event,
+  public Message applyTransformers(final Message message, final CoreEvent event,
                                    final List<? extends Transformer> transformers)
       throws MuleException {
     return applyAllTransformers(message, event, transformers);
@@ -74,7 +74,7 @@ public class ExtendedTransformationService extends DefaultTransformationService 
    * @throws TransformerException if a transformation error occurs or one or more of the transformers passed in a are incompatible
    *         with the message payload
    */
-  public Message applyTransformers(final Message message, final BaseEvent event, final Transformer... transformers)
+  public Message applyTransformers(final Message message, final CoreEvent event, final Transformer... transformers)
       throws MuleException {
     return applyAllTransformers(message, event, asList(transformers));
   }
@@ -115,7 +115,7 @@ public class ExtendedTransformationService extends DefaultTransformationService 
     return "Payload is a stream of type: " + dataType.getType();
   }
 
-  private Message applyAllTransformers(final Message message, final BaseEvent event,
+  private Message applyAllTransformers(final Message message, final CoreEvent event,
                                        final List<? extends Transformer> transformers)
       throws MuleException {
     Message result = message;
@@ -188,7 +188,7 @@ public class ExtendedTransformationService extends DefaultTransformationService 
     return skipConverter;
   }
 
-  private Message transformMessage(final Message message, final BaseEvent event, final Transformer transformer)
+  private Message transformMessage(final Message message, final CoreEvent event, final Transformer transformer)
       throws MessageTransformerException, TransformerException {
     Object result;
 
