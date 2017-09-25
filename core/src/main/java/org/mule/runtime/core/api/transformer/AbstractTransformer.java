@@ -79,7 +79,9 @@ public abstract class AbstractTransformer extends AbstractComponent implements T
     if (event != null && event.getMessage() != null) {
       try {
         return CoreEvent.builder(event)
-                .message(((ExtendedTransformationService)muleContext.getTransformationService()).applyTransformers(event.getMessage(), event, this)).build();
+            .message(((ExtendedTransformationService) muleContext.getTransformationService())
+                .applyTransformers(event.getMessage(), event, this))
+            .build();
       } catch (Exception e) {
         throw new MessageTransformerException(this, e, event.getMessage());
       }
