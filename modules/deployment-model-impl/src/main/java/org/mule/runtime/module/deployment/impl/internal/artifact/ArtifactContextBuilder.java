@@ -8,6 +8,7 @@ package org.mule.runtime.module.deployment.impl.internal.artifact;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonMap;
 import static java.util.Optional.empty;
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
 import static org.mule.runtime.api.util.Preconditions.checkState;
@@ -18,13 +19,15 @@ import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_POLICY_PROV
 import static org.mule.runtime.core.api.config.bootstrap.ArtifactType.APP;
 import static org.mule.runtime.core.api.util.ClassUtils.withContextClassLoader;
 import static org.mule.runtime.core.api.util.UUID.getUUID;
+import static org.mule.runtime.core.internal.exception.ErrorTypeRepositoryFactory.createCompositeErrorTypeRepository;
+import static org.mule.runtime.core.internal.exception.ErrorTypeRepositoryFactory.createDefaultErrorTypeRepository;
 
-import org.mule.runtime.app.declaration.api.ArtifactDeclaration;
 import org.mule.runtime.api.component.location.Location;
 import org.mule.runtime.api.config.custom.ServiceConfigurator;
 import org.mule.runtime.api.connectivity.ConnectivityTestingService;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.lifecycle.InitialisationException;
+import org.mule.runtime.app.declaration.api.ArtifactDeclaration;
 import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.core.api.config.ConfigurationBuilder;
 import org.mule.runtime.core.api.config.ConfigurationException;
@@ -34,7 +37,6 @@ import org.mule.runtime.core.api.context.DefaultMuleContextFactory;
 import org.mule.runtime.core.api.context.MuleContextBuilder;
 import org.mule.runtime.core.api.context.notification.MuleContextListener;
 import org.mule.runtime.core.api.policy.PolicyProvider;
-import org.mule.runtime.core.internal.exception.ErrorTypeRepositoryFactory;
 import org.mule.runtime.deployment.model.api.DeployableArtifact;
 import org.mule.runtime.deployment.model.api.artifact.ArtifactConfigurationProcessor;
 import org.mule.runtime.deployment.model.api.artifact.ArtifactContext;
@@ -286,9 +288,8 @@ public class ArtifactContextBuilder {
    * @param enableLazyInit when true the artifact resources from the mule configuration won't be created at startup. The artifact
    *        components from the configuration will be created on demand when requested. For instance, when using
    *        {@link ArtifactContext#getConnectivityTestingService()} and then invoking
-   *        {@link ConnectivityTestingService#testConnection(Location)} will cause the
-   *        creation of the component requested to do test connectivity, if it was not already created. when false, the
-   *        application will be created completely at startup.
+   *        {@link ConnectivityTestingService#testConnection(Location)} will cause the creation of the component requested to do
+   *        test connectivity, if it was not already created. when false, the application will be created completely at startup.
    * @return the builder
    */
   public ArtifactContextBuilder setEnableLazyInit(boolean enableLazyInit) {
@@ -403,15 +404,14 @@ public class ArtifactContextBuilder {
         ArtifactObjectSerializer objectSerializer = new ArtifactObjectSerializer(classLoaderRepository);
         muleContextBuilder.setObjectSerializer(objectSerializer);
 
-        if (parentArtifact != null) {
-          builders.add(new ConnectionManagerConfigurationBuilder(parentArtifact));
-
-          muleContextBuilder
-              .setErrorTypeRepository(ErrorTypeRepositoryFactory
-                  .createCompositeErrorTypeRepository(parentArtifact.getMuleContext().getErrorTypeRepository()));
-        } else {
-          builders.add(new ConnectionManagerConfigurationBuilder());
-        }
+        builders.add(parentArtifact != null
+            ? new ConnectionManagerConfigurationBuilder(parentArtifact)
+            : new ConnectionManagerConfigurationBuilder());
+        builders.add(new SimpleConfigurationBuilder(singletonMap("_muleErrorTypeRepository",
+                                                                 parentArtifact != null
+                                                                     ? createCompositeErrorTypeRepository(parentArtifact
+                                                                         .getMuleContext().getErrorTypeRepository())
+                                                                     : createDefaultErrorTypeRepository())));
 
         try {
           muleContextFactory.createMuleContext(builders, muleContextBuilder);

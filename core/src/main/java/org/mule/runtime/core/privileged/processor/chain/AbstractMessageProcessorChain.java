@@ -26,24 +26,23 @@ import static reactor.core.publisher.Flux.just;
 import org.mule.runtime.api.component.Component;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
+import org.mule.runtime.api.interception.ProcessorInterceptorManager;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.lifecycle.Startable;
 import org.mule.runtime.api.notification.MessageProcessorNotification;
 import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.core.api.context.notification.ServerNotificationManager;
-import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.event.BaseEventContext;
+import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.exception.MessagingException;
 import org.mule.runtime.core.api.processor.Processor;
 import org.mule.runtime.core.api.processor.ReactiveProcessor;
 import org.mule.runtime.core.api.processor.strategy.ProcessingStrategy;
 import org.mule.runtime.core.api.streaming.StreamingManager;
 import org.mule.runtime.core.api.util.MessagingExceptionResolver;
-import org.mule.runtime.core.internal.context.MuleContextWithRegistries;
 import org.mule.runtime.core.internal.processor.interceptor.ReactiveInterceptorAdapter;
 import org.mule.runtime.core.privileged.component.AbstractExecutableComponent;
 import org.mule.runtime.core.privileged.event.PrivilegedEvent;
-import org.mule.runtime.core.privileged.registry.RegistrationException;
 
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
@@ -57,6 +56,8 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import javax.inject.Inject;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -73,6 +74,11 @@ abstract class AbstractMessageProcessorChain extends AbstractExecutableComponent
   private final List<Processor> processors;
   private ProcessingStrategy processingStrategy;
   private List<ReactiveInterceptorAdapter> additionalInterceptors = new LinkedList<>();
+
+  @Inject
+  private ProcessorInterceptorManager processorInterceptorManager;
+
+  @Inject
   private StreamingManager streamingManager;
 
   AbstractMessageProcessorChain(String name, Optional<ProcessingStrategy> processingStrategyOptional,
@@ -294,7 +300,7 @@ abstract class AbstractMessageProcessorChain extends AbstractExecutableComponent
 
   @Override
   public void initialise() throws InitialisationException {
-    muleContext.getProcessorInterceptorManager().getInterceptorFactories().stream().forEach(interceptorFactory -> {
+    processorInterceptorManager.getInterceptorFactories().stream().forEach(interceptorFactory -> {
       ReactiveInterceptorAdapter reactiveInterceptorAdapter = new ReactiveInterceptorAdapter(interceptorFactory);
       try {
         muleContext.getInjector().inject(reactiveInterceptorAdapter);
@@ -304,11 +310,6 @@ abstract class AbstractMessageProcessorChain extends AbstractExecutableComponent
       additionalInterceptors.add(0, reactiveInterceptorAdapter);
     });
 
-    try {
-      streamingManager = ((MuleContextWithRegistries) muleContext).getRegistry().lookupObject(StreamingManager.class);
-    } catch (RegistrationException e) {
-      throw new InitialisationException(e, this);
-    }
     initialiseIfNeeded(getMessageProcessorsForLifecycle(), true, muleContext);
   }
 

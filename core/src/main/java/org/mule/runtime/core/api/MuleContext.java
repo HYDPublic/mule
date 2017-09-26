@@ -8,7 +8,6 @@ package org.mule.runtime.core.api;
 
 import org.mule.runtime.api.component.location.ConfigurationComponentLocator;
 import org.mule.runtime.api.config.custom.CustomizationService;
-import org.mule.runtime.api.interception.ProcessorInterceptorManager;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.lifecycle.Lifecycle;
 import org.mule.runtime.api.lock.LockFactory;
@@ -327,9 +326,6 @@ public interface MuleContext extends Lifecycle {
    *         artifact.
    */
   ErrorTypeRepository getErrorTypeRepository();
-
-  // TODO MULE-11521 Define if this will remain here
-  ProcessorInterceptorManager getProcessorInterceptorManager();
 
   /**
    * Sets application wide instance of {@link BootstrapServiceDiscoverer}

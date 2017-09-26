@@ -7,8 +7,7 @@
 package org.mule.runtime.core.internal.context;
 
 import static org.mule.runtime.core.api.context.notification.ServerNotificationManager.createDefaultNotificationManager;
-import static org.mule.runtime.core.internal.exception.ErrorTypeLocatorFactory.createDefaultErrorTypeLocator;
-import static org.mule.runtime.core.internal.exception.ErrorTypeRepositoryFactory.createDefaultErrorTypeRepository;
+
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.i18n.I18nMessage;
 import org.mule.runtime.api.i18n.I18nMessageFactory;
@@ -22,14 +21,12 @@ import org.mule.runtime.core.api.config.bootstrap.PropertiesBootstrapServiceDisc
 import org.mule.runtime.core.api.context.MuleContextAware;
 import org.mule.runtime.core.api.context.MuleContextBuilder;
 import org.mule.runtime.core.api.context.notification.ServerNotificationManager;
-import org.mule.runtime.core.api.exception.ErrorTypeRepository;
 import org.mule.runtime.core.api.exception.SystemExceptionHandler;
 import org.mule.runtime.core.api.lifecycle.LifecycleManager;
 import org.mule.runtime.core.api.util.ClassUtils;
 import org.mule.runtime.core.internal.client.DefaultLocalMuleClient;
 import org.mule.runtime.core.internal.exception.DefaultSystemExceptionStrategy;
 import org.mule.runtime.core.internal.lifecycle.MuleContextLifecycleManager;
-import org.mule.runtime.core.internal.processor.interceptor.DefaultProcessorInterceptorManager;
 import org.mule.runtime.core.internal.registry.DefaultRegistryBroker;
 import org.mule.runtime.core.internal.registry.MuleRegistryHelper;
 import org.mule.runtime.core.internal.registry.RegistryDelegatingInjector;
@@ -57,8 +54,6 @@ public class DefaultMuleContextBuilder implements MuleContextBuilder {
   protected ClassLoader executionClassLoader;
 
   protected ObjectSerializer objectSerializer;
-
-  private ErrorTypeRepository errorTypeRepository;
 
   /**
    * Creates a new builder
@@ -94,15 +89,6 @@ public class DefaultMuleContextBuilder implements MuleContextBuilder {
         .setBootstrapServiceDiscoverer(injectMuleContextIfRequired(createBootstrapDiscoverer(), muleContext));
 
     getObjectSerializer(muleContext);
-
-    if (errorTypeRepository == null) {
-      errorTypeRepository = createDefaultErrorTypeRepository();
-    }
-
-    muleContext.setErrorTypeRepository(errorTypeRepository);
-    muleContext.setErrorTypeLocator(createDefaultErrorTypeLocator(errorTypeRepository));
-
-    muleContext.setProcessorInterceptorManager(new DefaultProcessorInterceptorManager());
 
     return muleContext;
   }
@@ -165,14 +151,6 @@ public class DefaultMuleContextBuilder implements MuleContextBuilder {
     } else {
       return Thread.currentThread().getContextClassLoader();
     }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void setErrorTypeRepository(ErrorTypeRepository errorTypeRepository) {
-    this.errorTypeRepository = errorTypeRepository;
   }
 
   private <T> T injectMuleContextIfRequired(T object, MuleContext muleContext) {

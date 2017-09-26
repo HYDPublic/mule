@@ -91,6 +91,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 
 @SmallTest
@@ -100,6 +101,8 @@ public class ReactiveInterceptorAdapterTestCase extends AbstractMuleContextTestC
   private final boolean useMockInterceptor;
   private final Processor processor;
 
+  @Inject
+  private DefaultProcessorInterceptorManager processorInterceptiorManager;
   private Flow flow;
 
   @Rule
@@ -108,6 +111,11 @@ public class ReactiveInterceptorAdapterTestCase extends AbstractMuleContextTestC
   public ReactiveInterceptorAdapterTestCase(boolean useMockInterceptor, Processor processor) {
     this.useMockInterceptor = useMockInterceptor;
     this.processor = spy(processor);
+  }
+
+  @Override
+  protected boolean doTestClassInjection() {
+    return true;
   }
 
   /*
@@ -1551,7 +1559,7 @@ public class ReactiveInterceptorAdapterTestCase extends AbstractMuleContextTestC
 
   private void startFlowWithInterceptors(ProcessorInterceptor... interceptors) throws Exception {
     for (ProcessorInterceptor interceptionHandler : interceptors) {
-      muleContext.getProcessorInterceptorManager().addInterceptorFactory(() -> interceptionHandler);
+      processorInterceptiorManager.addInterceptorFactory(() -> interceptionHandler);
     }
 
     flow.initialise();
@@ -1560,7 +1568,7 @@ public class ReactiveInterceptorAdapterTestCase extends AbstractMuleContextTestC
 
   private void startFlowWithInterceptorFactories(ProcessorInterceptorFactory... interceptorFactories) throws Exception {
     for (ProcessorInterceptorFactory interceptionHandlerFactory : interceptorFactories) {
-      muleContext.getProcessorInterceptorManager().addInterceptorFactory(interceptionHandlerFactory);
+      processorInterceptiorManager.addInterceptorFactory(interceptionHandlerFactory);
     }
 
     flow.initialise();

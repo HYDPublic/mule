@@ -42,6 +42,7 @@ import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNee
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.startIfNeeded;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.stopIfNeeded;
 import static org.mule.runtime.core.api.rx.Exceptions.unwrap;
+import static org.mule.runtime.core.internal.exception.ErrorTypeLocatorFactory.createDefaultErrorTypeLocator;
 import static org.mule.runtime.core.internal.util.FunctionalUtils.safely;
 import static org.mule.runtime.core.internal.util.JdkVersionUtils.getSupportedJdks;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -52,7 +53,6 @@ import org.mule.runtime.api.deployment.management.ComponentInitialStateManager;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.i18n.I18nMessage;
-import org.mule.runtime.api.interception.ProcessorInterceptorManager;
 import org.mule.runtime.api.lifecycle.Disposable;
 import org.mule.runtime.api.lifecycle.Initialisable;
 import org.mule.runtime.api.lifecycle.InitialisationException;
@@ -241,9 +241,9 @@ public class DefaultMuleContext implements MuleContextWithRegistries {
    */
   private ArtifactType artifactType;
 
-  private ErrorTypeLocator errorTypeLocator;
+  private volatile ErrorTypeLocator errorTypeLocator;
+  private volatile Object errorTypeLocatorLock = new Object();
   private ErrorTypeRepository errorTypeRepository;
-  private ProcessorInterceptorManager processorInterceptorManager;
 
   // If this runs inside a Mule classloader it's automatically loaded, but in unit tests that
   // are run outside we need to set it up here.
@@ -1050,15 +1050,18 @@ public class DefaultMuleContext implements MuleContextWithRegistries {
     return conf.getDomainId() + "." + getClusterId() + "." + conf.getId();
   }
 
-  public void setErrorTypeLocator(ErrorTypeLocator errorTypeLocator) {
-    this.errorTypeLocator = errorTypeLocator;
-  }
-
   /**
    * {@inheritDoc}
    */
   @Override
   public ErrorTypeLocator getErrorTypeLocator() {
+    if (errorTypeLocator == null) {
+      synchronized (errorTypeLocatorLock) {
+        if (errorTypeLocator == null) {
+          errorTypeLocator = createDefaultErrorTypeLocator(getErrorTypeRepository());
+        }
+      }
+    }
     return errorTypeLocator;
   }
 
@@ -1067,27 +1070,10 @@ public class DefaultMuleContext implements MuleContextWithRegistries {
    */
   @Override
   public ErrorTypeRepository getErrorTypeRepository() {
-    return errorTypeRepository;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ProcessorInterceptorManager getProcessorInterceptorManager() {
-    return processorInterceptorManager;
-  }
-
-  public void setProcessorInterceptorManager(ProcessorInterceptorManager processorInterceptorManager) {
     try {
-      getRegistry().registerObject(ProcessorInterceptorManager.REGISTRY_KEY, processorInterceptorManager);
+      return getRegistry().lookupObject(ErrorTypeRepository.class);
     } catch (RegistrationException e) {
       throw new MuleRuntimeException(e);
     }
-    this.processorInterceptorManager = processorInterceptorManager;
-  }
-
-  public void setErrorTypeRepository(ErrorTypeRepository errorTypeRepository) {
-    this.errorTypeRepository = errorTypeRepository;
   }
 }

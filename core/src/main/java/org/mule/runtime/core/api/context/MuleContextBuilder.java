@@ -11,7 +11,6 @@ import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.core.api.config.MuleConfiguration;
 import org.mule.runtime.core.api.config.bootstrap.ArtifactType;
 import org.mule.runtime.core.api.context.notification.ServerNotificationManager;
-import org.mule.runtime.core.api.exception.ErrorTypeRepository;
 import org.mule.runtime.core.api.lifecycle.LifecycleManager;
 import org.mule.runtime.core.internal.context.DefaultMuleContextBuilder;
 
@@ -42,12 +41,6 @@ public interface MuleContextBuilder {
    * @param objectSerializer object serializer to use on the created context. Non null.
    */
   void setObjectSerializer(ObjectSerializer objectSerializer);
-
-  /**
-   * @param errorTypeRepository error type repository to be used in the context, is not configured a default one will be used.
-   */
-  void setErrorTypeRepository(ErrorTypeRepository errorTypeRepository);
-
 
   /**
    * Creates a new {@link MuleContextBuilder} instance
