@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.runtime.core.privileged;
+package org.mule.runtime.core.privileged.transformer;
 
 import static java.util.Arrays.asList;
 import static org.mule.runtime.api.metadata.MediaType.ANY;
@@ -21,7 +21,6 @@ import org.mule.runtime.core.api.transformer.MessageTransformer;
 import org.mule.runtime.core.api.transformer.MessageTransformerException;
 import org.mule.runtime.core.api.transformer.Transformer;
 import org.mule.runtime.core.api.transformer.TransformerException;
-import org.mule.runtime.core.privileged.transformer.TransformerUtils;
 
 import java.nio.charset.Charset;
 import java.util.List;

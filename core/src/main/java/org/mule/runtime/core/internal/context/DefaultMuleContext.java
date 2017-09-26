@@ -120,7 +120,7 @@ import org.mule.runtime.core.internal.util.splash.ApplicationStartupSplashScreen
 import org.mule.runtime.core.internal.util.splash.ServerShutdownSplashScreen;
 import org.mule.runtime.core.internal.util.splash.ServerStartupSplashScreen;
 import org.mule.runtime.core.internal.util.splash.SplashScreen;
-import org.mule.runtime.core.privileged.ExtendedTransformationService;
+import org.mule.runtime.core.privileged.transformer.ExtendedTransformationService;
 import org.mule.runtime.core.privileged.registry.RegistrationException;
 
 import org.slf4j.Logger;
