@@ -22,7 +22,6 @@ import org.mule.runtime.core.api.transformer.TransformerException;
 import org.mule.runtime.core.api.util.func.CheckedSupplier;
 import org.mule.runtime.core.internal.context.MuleContextWithRegistries;
 
-
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
