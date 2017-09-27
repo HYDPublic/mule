@@ -137,17 +137,17 @@ public class LazyMuleArtifactContext extends MuleArtifactContext implements Lazy
   }
 
   @Override
-  public void initializeComponent(Location location) {
+  public synchronized void initializeComponent(Location location) {
     applyLifecycle(createComponents(empty(), of(location)));
   }
 
   @Override
-  public void initializeComponents(ComponentLocationFilter filter) {
+  public synchronized void initializeComponents(ComponentLocationFilter filter) {
     applyLifecycle(createComponents(of(filter), empty()));
   }
 
   @Override
-  public void createComponent(Location location) {
+  public synchronized void createComponent(Location location) {
     createComponents(empty(), of(location));
   }
 
@@ -177,7 +177,9 @@ public class LazyMuleArtifactContext extends MuleArtifactContext implements Lazy
       applicationComponents.forEach(component -> getRegistry().lookupByName(component).get());
     });
     trackingPostProcessor.stopTracking();
-    return createdComponents.get();
+    List<String> createdComponentNames = createdComponents.get();
+    trackingPostProcessor.intersection(createdComponentNames);
+    return createdComponentNames;
   }
 
   private void unregisterBeans(List<String> beanNames) {
