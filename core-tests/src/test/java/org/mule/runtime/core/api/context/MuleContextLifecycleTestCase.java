@@ -6,6 +6,7 @@
  */
 package org.mule.runtime.core.api.context;
 
+import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -18,6 +19,7 @@ import static org.mule.runtime.core.api.context.notification.MuleContextNotifica
 import static org.mule.runtime.core.api.context.notification.MuleContextNotification.CONTEXT_STARTING;
 import static org.mule.runtime.core.api.context.notification.MuleContextNotification.CONTEXT_STOPPED;
 import static org.mule.runtime.core.api.context.notification.MuleContextNotification.CONTEXT_STOPPING;
+import static org.mule.runtime.core.internal.exception.ErrorTypeRepositoryFactory.createDefaultErrorTypeRepository;
 import static org.mule.tck.MuleAssert.assertTrue;
 
 import org.mule.runtime.api.exception.MuleException;
@@ -29,6 +31,7 @@ import org.mule.runtime.api.lifecycle.Startable;
 import org.mule.runtime.api.lifecycle.Stoppable;
 import org.mule.runtime.api.notification.NotificationListenerRegistry;
 import org.mule.runtime.core.api.MuleContext;
+import org.mule.runtime.core.api.config.builders.SimpleConfigurationBuilder;
 import org.mule.runtime.core.api.context.notification.MuleContextNotification;
 import org.mule.runtime.core.api.context.notification.MuleContextNotificationListener;
 import org.mule.runtime.core.api.security.SecurityManager;
@@ -43,16 +46,16 @@ import org.mule.runtime.core.internal.util.JdkVersionUtils;
 import org.mule.tck.config.TestServicesConfigurationBuilder;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
 public class MuleContextLifecycleTestCase extends AbstractMuleTestCase {
 
@@ -74,6 +77,7 @@ public class MuleContextLifecycleTestCase extends AbstractMuleTestCase {
     ((MuleContextWithRegistries) ctx).getRegistry().registerObject(NotificationListenerRegistry.REGISTRY_KEY,
                                                                    notificationListenerRegistry);
     testServicesConfigurationBuilder.configure(ctx);
+    new SimpleConfigurationBuilder(singletonMap("_muleErrorTypeRepository", createDefaultErrorTypeRepository())).configure(ctx);
   }
 
   @After

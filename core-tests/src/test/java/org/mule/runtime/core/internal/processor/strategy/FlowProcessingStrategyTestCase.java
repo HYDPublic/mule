@@ -6,6 +6,7 @@
  */
 package org.mule.runtime.core.internal.processor.strategy;
 
+import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
@@ -17,7 +18,12 @@ import static org.mockito.Mockito.when;
 import static org.mule.runtime.core.api.construct.Flow.builder;
 import static org.mule.tck.MuleTestUtils.testWithSystemProperty;
 import static org.mule.tck.util.MuleContextUtils.mockContextWithServices;
+import static org.reflections.ReflectionUtils.getAllFields;
+import static org.reflections.ReflectionUtils.withAnnotation;
 
+import org.mule.runtime.api.exception.MuleException;
+import org.mule.runtime.api.interception.ProcessorInterceptorManager;
+import org.mule.runtime.core.api.Injector;
 import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.core.api.config.DefaultMuleConfiguration;
 import org.mule.runtime.core.api.config.MuleConfiguration;
@@ -28,6 +34,10 @@ import org.mule.runtime.core.api.processor.strategy.ProcessingStrategyFactory;
 import org.mule.runtime.core.privileged.registry.RegistrationException;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;
+
+import java.lang.reflect.Field;
+
+import javax.inject.Inject;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +59,29 @@ public class FlowProcessingStrategyTestCase extends AbstractMuleTestCase {
   @Before
   public void before() throws RegistrationException {
     when(muleContext.getConfiguration()).thenReturn(configuration);
+    // Ensure a ProcessorInterceptorManager is injected
+    when(muleContext.getInjector()).thenReturn(new Injector() {
+
+      @Override
+      public <T> T inject(T object) throws MuleException {
+        for (Field field : getAllFields(object.getClass(), withAnnotation(Inject.class))) {
+          Class<?> dependencyType = field.getType();
+
+          if (ProcessorInterceptorManager.class.isAssignableFrom(dependencyType)) {
+            try {
+              field.setAccessible(true);
+              field.set(object, mock(ProcessorInterceptorManager.class));
+            } catch (Exception e) {
+              throw new RuntimeException(format("Could not inject dependency on field %s of type %s", field.getName(),
+                                                object.getClass().getName()),
+                                         e);
+            }
+          }
+        }
+        return object;
+      }
+
+    });
     createFlow(null);
   }
 

@@ -6,6 +6,7 @@
  */
 package org.mule.runtime.core.internal.exception;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -26,14 +27,18 @@ import static org.mule.runtime.core.internal.exception.DefaultErrorTypeRepositor
 import static org.mule.tck.util.MuleContextUtils.mockMuleContext;
 import static org.mule.test.allure.AllureConstants.ErrorHandlingFeature.ERROR_HANDLING;
 import static org.mule.test.allure.AllureConstants.ErrorHandlingFeature.ErrorHandlingStory.ERROR_HANDLER;
+import static org.reflections.ReflectionUtils.getAllFields;
+import static org.reflections.ReflectionUtils.withAnnotation;
 import static reactor.core.publisher.Mono.just;
 
 import org.mule.runtime.api.exception.MuleException;
+import org.mule.runtime.api.interception.ProcessorInterceptorManager;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.message.Error;
 import org.mule.runtime.api.message.ErrorType;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.notification.NotificationDispatcher;
+import org.mule.runtime.core.api.Injector;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.exception.MessagingException;
 import org.mule.runtime.core.api.exception.MessagingExceptionHandler;
@@ -43,6 +48,13 @@ import org.mule.runtime.core.privileged.exception.MessagingExceptionHandlerAccep
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,10 +62,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
@@ -177,6 +185,29 @@ public class ErrorHandlerTestCase extends AbstractMuleTestCase {
     when(mockMuleContext.getRegistry().lookupObject(NotificationDispatcher.class)).thenReturn(mock(NotificationDispatcher.class));
     when(mockMuleContext.getRegistry().lookupObject(StreamingManager.class)).thenReturn(mock(StreamingManager.class));
     when(mockMuleContext.getDefaultErrorHandler(of("root"))).thenReturn(errorHandler);
+    // Ensure a ProcessorInterceptorManager is injected
+    when(mockMuleContext.getInjector()).thenReturn(new Injector() {
+
+      @Override
+      public <T> T inject(T object) throws MuleException {
+        for (Field field : getAllFields(object.getClass(), withAnnotation(Inject.class))) {
+          Class<?> dependencyType = field.getType();
+
+          if (ProcessorInterceptorManager.class.isAssignableFrom(dependencyType)) {
+            try {
+              field.setAccessible(true);
+              field.set(object, mock(ProcessorInterceptorManager.class));
+            } catch (Exception e) {
+              throw new RuntimeException(format("Could not inject dependency on field %s of type %s", field.getName(),
+                                                object.getClass().getName()),
+                                         e);
+            }
+          }
+        }
+        return object;
+      }
+
+    });
     errorHandler.initialise();
 
     assertThat(errorHandler.getExceptionListeners(), hasSize(3));

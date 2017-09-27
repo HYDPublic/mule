@@ -27,6 +27,7 @@ import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_MULE_SIMPLE
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_QUEUE_MANAGER;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_SECURITY_MANAGER;
 import static org.mule.runtime.core.api.config.bootstrap.ArtifactType.APP;
+import static org.mule.runtime.core.internal.exception.ErrorTypeRepositoryFactory.createDefaultErrorTypeRepository;
 import static org.mule.tck.util.MuleContextUtils.mockMuleContext;
 
 import org.mule.runtime.api.artifact.Registry;
@@ -45,17 +46,17 @@ import org.mule.tck.config.TestServicesConfigurationBuilder;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.testmodels.fruit.Banana;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.InOrder;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.InOrder;
 
 public class DefaultMuleContextFactoryTestCase extends AbstractMuleTestCase {
 
@@ -93,7 +94,10 @@ public class DefaultMuleContextFactoryTestCase extends AbstractMuleTestCase {
 
   @Test
   public void testCreateMuleContext() throws InitialisationException, ConfigurationException {
-    context = muleContextFactory.createMuleContext(testServicesConfigurationBuilder, new DefaultsConfigurationBuilder());
+    context = muleContextFactory.createMuleContext(testServicesConfigurationBuilder,
+                                                   new SimpleConfigurationBuilder(singletonMap("_muleErrorTypeRepository",
+                                                                                               createDefaultErrorTypeRepository())),
+                                                   new DefaultsConfigurationBuilder());
 
     assertMuleContextConfiguration(context);
     assertDefaults(context);

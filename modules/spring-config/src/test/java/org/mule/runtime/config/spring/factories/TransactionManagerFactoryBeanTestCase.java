@@ -6,14 +6,17 @@
  */
 package org.mule.runtime.config.spring.factories;
 
+import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.mule.runtime.core.internal.exception.ErrorTypeRepositoryFactory.createDefaultErrorTypeRepository;
 
 import org.mule.runtime.config.spring.internal.factories.TransactionManagerFactoryBean;
-import org.mule.runtime.core.internal.config.builders.DefaultsConfigurationBuilder;
-import org.mule.runtime.core.internal.context.DefaultMuleContext;
+import org.mule.runtime.core.api.MuleContext;
+import org.mule.runtime.core.api.config.builders.SimpleConfigurationBuilder;
 import org.mule.runtime.core.api.context.DefaultMuleContextFactory;
+import org.mule.runtime.core.internal.config.builders.DefaultsConfigurationBuilder;
 import org.mule.tck.config.TestServicesConfigurationBuilder;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.testmodels.mule.TestTransactionManagerFactory;
@@ -27,9 +30,10 @@ public class TransactionManagerFactoryBeanTestCase extends AbstractMuleTestCase 
 
   @Test
   public void registerTransactionManager() throws Exception {
-    DefaultMuleContext context =
-        (DefaultMuleContext) new DefaultMuleContextFactory().createMuleContext(new TestServicesConfigurationBuilder(),
-                                                                               new DefaultsConfigurationBuilder());
+    MuleContext context = new DefaultMuleContextFactory().createMuleContext(new TestServicesConfigurationBuilder(),
+                                                                            new SimpleConfigurationBuilder(singletonMap("_muleErrorTypeRepository",
+                                                                                                                        createDefaultErrorTypeRepository())),
+                                                                            new DefaultsConfigurationBuilder());
 
     TransactionManagerFactoryBean txMgrFB = new TransactionManagerFactoryBean();
     txMgrFB.setMuleContext(context);

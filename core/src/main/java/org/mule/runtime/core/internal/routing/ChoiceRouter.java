@@ -24,7 +24,6 @@ import javax.inject.Inject;
  */
 public class ChoiceRouter extends AbstractSelectiveRouter {
 
-  @Inject
   private ExpressionManager expressionManager;
 
   @Override
@@ -42,6 +41,11 @@ public class ChoiceRouter extends AbstractSelectiveRouter {
     } catch (RoutePathNotFoundException e) {
       return event1 -> event1;
     }
+  }
+
+  @Inject
+  public void setExpressionManager(ExpressionManager expressionManager) {
+    this.expressionManager = expressionManager;
   }
 
 }

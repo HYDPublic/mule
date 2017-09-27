@@ -6,6 +6,7 @@
  */
 package org.mule.runtime.core.internal.context;
 
+import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -24,11 +25,13 @@ import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_MULE_STREAM
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_POLLING_CONTROLLER;
 import static org.mule.runtime.core.api.config.bootstrap.ArtifactType.APP;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.disposeIfNeeded;
+import static org.mule.runtime.core.internal.exception.ErrorTypeRepositoryFactory.createDefaultErrorTypeRepository;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.core.api.MuleContext;
+import org.mule.runtime.core.api.config.builders.SimpleConfigurationBuilder;
 import org.mule.runtime.core.api.context.DefaultMuleContextFactory;
 import org.mule.runtime.core.api.context.MuleContextFactory;
 import org.mule.runtime.core.api.context.notification.ServerNotificationManager;
@@ -196,6 +199,9 @@ public class DefaultMuleContextTestCase extends AbstractMuleTestCase {
   }
 
   protected void createMuleContext() throws MuleException {
-    context = muleContextFactory.createMuleContext(testServicesConfigurationBuilder, new DefaultsConfigurationBuilder());
+    context = muleContextFactory.createMuleContext(testServicesConfigurationBuilder,
+                                                   new SimpleConfigurationBuilder(singletonMap("_muleErrorTypeRepository",
+                                                                                               createDefaultErrorTypeRepository())),
+                                                   new DefaultsConfigurationBuilder());
   }
 }

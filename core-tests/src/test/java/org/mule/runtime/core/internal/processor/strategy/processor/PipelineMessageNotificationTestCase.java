@@ -28,9 +28,12 @@ import static org.mule.runtime.core.api.exception.Errors.ComponentIdentifiers.Ha
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.stopIfNeeded;
 import static org.mule.runtime.core.api.processor.strategy.AsyncProcessingStrategyFactory.DEFAULT_MAX_CONCURRENCY;
 import static org.mule.tck.util.MuleContextUtils.mockContextWithServices;
+import static org.reflections.ReflectionUtils.getAllFields;
+import static org.reflections.ReflectionUtils.withAnnotation;
 
 import org.mule.runtime.api.component.ComponentIdentifier;
 import org.mule.runtime.api.exception.MuleException;
+import org.mule.runtime.api.interception.ProcessorInterceptorManager;
 import org.mule.runtime.api.message.ErrorType;
 import org.mule.runtime.api.notification.EnrichedServerNotification;
 import org.mule.runtime.api.notification.ErrorHandlerNotification;
@@ -39,6 +42,7 @@ import org.mule.runtime.api.notification.Notification;
 import org.mule.runtime.api.notification.NotificationDispatcher;
 import org.mule.runtime.api.notification.PipelineMessageNotification;
 import org.mule.runtime.core.api.DefaultTransformationService;
+import org.mule.runtime.core.api.Injector;
 import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.core.api.config.DefaultMuleConfiguration;
 import org.mule.runtime.core.api.event.BaseEventContext;
@@ -57,6 +61,13 @@ import org.mule.runtime.core.privileged.processor.InternalProcessor;
 import org.mule.runtime.core.privileged.processor.chain.MessageProcessorChainBuilder;
 import org.mule.tck.junit4.AbstractReactiveProcessorTestCase;
 
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+
+import javax.inject.Inject;
+
 import org.hamcrest.Description;
 import org.junit.After;
 import org.junit.Before;
@@ -66,10 +77,6 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.ArgumentMatcher;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CountDownLatch;
 
 
 @RunWith(Parameterized.class)
@@ -102,6 +109,29 @@ public class PipelineMessageNotificationTestCase extends AbstractReactiveProcess
     mockErrorTypeLocator();
     when(muleContext.getErrorTypeRepository().getErrorType(UNKNOWN)).thenReturn(Optional.of(mock(ErrorType.class)));
     when(muleContext.getTransformationService()).thenReturn(new DefaultTransformationService(muleContext));
+    // Ensure a ProcessorInterceptorManager is injected
+    when(muleContext.getInjector()).thenReturn(new Injector() {
+
+      @Override
+      public <T> T inject(T object) throws MuleException {
+        for (Field field : getAllFields(object.getClass(), withAnnotation(Inject.class))) {
+          Class<?> dependencyType = field.getType();
+
+          if (ProcessorInterceptorManager.class.isAssignableFrom(dependencyType)) {
+            try {
+              field.setAccessible(true);
+              field.set(object, mock(ProcessorInterceptorManager.class));
+            } catch (Exception e) {
+              throw new RuntimeException(format("Could not inject dependency on field %s of type %s", field.getName(),
+                                                object.getClass().getName()),
+                                         e);
+            }
+          }
+        }
+        return object;
+      }
+
+    });
   }
 
   private void mockErrorTypeLocator() {

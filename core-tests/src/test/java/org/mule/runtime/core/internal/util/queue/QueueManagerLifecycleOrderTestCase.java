@@ -15,8 +15,10 @@ import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_NOTIFICATIO
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_QUEUE_MANAGER;
 import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_SECURITY_MANAGER;
 import static org.mule.runtime.core.api.processor.strategy.AsyncProcessingStrategyFactory.DEFAULT_MAX_CONCURRENCY;
+import static org.mule.runtime.core.internal.exception.ErrorTypeRepositoryFactory.createDefaultErrorTypeRepository;
 
 import org.mule.runtime.api.exception.MuleException;
+import org.mule.runtime.api.interception.ProcessorInterceptorManager;
 import org.mule.runtime.api.lifecycle.InitialisationException;
 import org.mule.runtime.api.notification.NotificationDispatcher;
 import org.mule.runtime.core.api.MuleContext;
@@ -34,17 +36,17 @@ import org.mule.tck.config.TestServicesConfigurationBuilder;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;
 
-import org.apache.commons.lang3.NotImplementedException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.apache.commons.lang3.NotImplementedException;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
 @SmallTest
 public class QueueManagerLifecycleOrderTestCase extends AbstractMuleTestCase {
@@ -62,6 +64,8 @@ public class QueueManagerLifecycleOrderTestCase extends AbstractMuleTestCase {
     Map<String, Object> objects = new HashMap<>();
     objects.put(OBJECT_QUEUE_MANAGER, rtqm);
     objects.put(OBJECT_SECURITY_MANAGER, new DefaultMuleSecurityManager());
+    objects.put("_muleErrorTypeRepository", createDefaultErrorTypeRepository());
+    objects.put(ProcessorInterceptorManager.REGISTRY_KEY, mock(ProcessorInterceptorManager.class));
     muleContext = new DefaultMuleContextFactory().createMuleContext(testServicesConfigurationBuilder,
                                                                     new SimpleConfigurationBuilder(objects));
     testServicesConfigurationBuilder.configure(muleContext);

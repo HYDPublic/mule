@@ -7,26 +7,29 @@
 package org.mule.runtime.config.spring;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mule.runtime.core.api.config.bootstrap.ArtifactType.APP;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.disposeIfNeeded;
+import static org.mule.runtime.core.internal.exception.ErrorTypeRepositoryFactory.createDefaultErrorTypeRepository;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.runtime.config.spring.internal.SpringXmlConfigurationBuilder;
+import org.mule.runtime.core.api.config.builders.SimpleConfigurationBuilder;
 import org.mule.runtime.core.api.context.DefaultMuleContextFactory;
 import org.mule.runtime.core.internal.context.MuleContextWithRegistries;
 import org.mule.tck.config.TestServicesConfigurationBuilder;
 import org.mule.tck.junit4.AbstractMuleTestCase;
+
+import java.util.Calendar;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
-
-import java.util.Calendar;
 
 public class OptionalObjectsIgnoredTestCase extends AbstractMuleTestCase {
 
@@ -42,6 +45,8 @@ public class OptionalObjectsIgnoredTestCase extends AbstractMuleTestCase {
   public void before() throws Exception {
     muleContext =
         (MuleContextWithRegistries) new DefaultMuleContextFactory().createMuleContext(testServicesConfigurationBuilder,
+                                                                                      new SimpleConfigurationBuilder(singletonMap("_muleErrorTypeRepository",
+                                                                                                                                  createDefaultErrorTypeRepository())),
                                                                                       new SpringXmlConfigurationBuilder(new String[] {},
                                                                                                                         emptyMap(),
                                                                                                                         APP,

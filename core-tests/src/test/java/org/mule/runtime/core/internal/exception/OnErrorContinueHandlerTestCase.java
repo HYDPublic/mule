@@ -6,6 +6,7 @@
  */
 package org.mule.runtime.core.internal.exception;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.Is.is;
@@ -23,15 +24,20 @@ import static org.mule.tck.MuleTestUtils.getTestFlow;
 import static org.mule.tck.util.MuleContextUtils.mockContextWithServices;
 import static org.mule.test.allure.AllureConstants.ErrorHandlingFeature.ERROR_HANDLING;
 import static org.mule.test.allure.AllureConstants.ErrorHandlingFeature.ErrorHandlingStory.ON_ERROR_CONTINUE;
+import static org.reflections.ReflectionUtils.getAllFields;
+import static org.reflections.ReflectionUtils.withAnnotation;
 
 import org.mule.runtime.api.exception.DefaultMuleException;
+import org.mule.runtime.api.exception.MuleException;
+import org.mule.runtime.api.interception.ProcessorInterceptorManager;
 import org.mule.runtime.api.message.Message;
+import org.mule.runtime.api.notification.NotificationDispatcher;
 import org.mule.runtime.api.tx.TransactionException;
+import org.mule.runtime.core.api.Injector;
 import org.mule.runtime.core.api.MuleContext;
 import org.mule.runtime.core.api.construct.Flow;
-import org.mule.runtime.api.notification.NotificationDispatcher;
-import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.event.BaseEventContext;
+import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.exception.MessagingException;
 import org.mule.runtime.core.api.processor.Processor;
 import org.mule.runtime.core.api.transaction.Transaction;
@@ -40,6 +46,10 @@ import org.mule.runtime.core.internal.message.InternalEvent;
 import org.mule.runtime.core.internal.message.InternalMessage;
 import org.mule.tck.junit4.AbstractMuleContextTestCase;
 import org.mule.tck.testmodels.mule.TestTransaction;
+
+import java.lang.reflect.Field;
+
+import javax.inject.Inject;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -84,6 +94,30 @@ public class OnErrorContinueHandlerTestCase extends AbstractMuleContextTestCase 
 
   @Before
   public void before() throws Exception {
+    // Ensure a ProcessorInterceptorManager is injected
+    when(muleContext.getInjector()).thenReturn(new Injector() {
+
+      @Override
+      public <T> T inject(T object) throws MuleException {
+        for (Field field : getAllFields(object.getClass(), withAnnotation(Inject.class))) {
+          Class<?> dependencyType = field.getType();
+
+          if (ProcessorInterceptorManager.class.isAssignableFrom(dependencyType)) {
+            try {
+              field.setAccessible(true);
+              field.set(object, mock(ProcessorInterceptorManager.class));
+            } catch (Exception e) {
+              throw new RuntimeException(format("Could not inject dependency on field %s of type %s", field.getName(),
+                                                object.getClass().getName()),
+                                         e);
+            }
+          }
+        }
+        return object;
+      }
+
+    });
+
     Transaction currentTransaction = TransactionCoordination.getInstance().getTransaction();
     if (currentTransaction != null) {
       TransactionCoordination.getInstance().unbindTransaction(currentTransaction);
